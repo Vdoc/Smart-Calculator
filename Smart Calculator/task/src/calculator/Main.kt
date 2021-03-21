@@ -17,7 +17,11 @@ class Calculator {
 //    val list: MutableList<List<String>> = mutableListOf<List<String>>()
 
     fun printResults() {
-        println(args[0] + args[1])
+        var result = 0
+        for (i in 0 until args.size) {
+            result += args[i]
+        }
+        println(result)
         args.clear()
     }
 
@@ -25,15 +29,25 @@ class Calculator {
         val scanner = Scanner(System.`in`)
         var input = scanner.nextLine()
         while (input == "") input = scanner.nextLine()
-        if (input == "/exit") {
-            exit = true
-            return
+        when (input) {
+            "/exit" -> {
+                exit = true
+                return
+            }
+            "/help" -> {
+                println("The program calculates the sum of numbers")
+                readInput()
+                return
+            }
         }
         val ints = input.split(" ")
-        args.add(ints[0].toInt())
-        if (ints.size > 1)
-        args.add(ints[1].toInt())
-        else args.add(0)
+        for (i in ints) {
+            args.add(i.toInt())
+        }
+//        args.add(ints[0].toInt())
+//        if (ints.size > 1)
+//        args.add(ints[1].toInt())
+//        else args.add(0)
 
         printResults()
     }
