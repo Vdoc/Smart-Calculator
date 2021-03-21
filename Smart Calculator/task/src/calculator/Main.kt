@@ -10,8 +10,11 @@ fun main() {
 
     while (!calculator.exit) {
         calculator.clear()
-        calculator.readInput()
-
+        try {
+            calculator.readInput()
+        } catch (e: NumberFormatException) {
+            println("Invalid expression")
+        }
     }
     println("Bye!")
 }
@@ -24,12 +27,14 @@ class Calculator {
 //    val list: MutableList<List<String>> = mutableListOf<List<String>>()
 
     var input = ""
+    var lastIndex = 0
     var counter = 0
     var result = 0
 
     fun clear() {
         input = ""
         counter = 0
+        result = 0
         list = mutableListOf<String>()
         var exit: Boolean = false
     }
@@ -38,16 +43,24 @@ class Calculator {
         val scanner = Scanner(System.`in`)
         input = scanner.nextLine()
         while (input == "") input = scanner.nextLine()
-        when (input) {
-            "/exit" -> {
-                exit = true
-                return
+        if (input[0] == '/') {
+            when (input) {
+                "/exit" -> {
+                    exit = true
+//                    return
+                }
+                "/help" -> {
+                    println("The program calculates the sum of numbers")
+                    readInput()
+//                    return
+                }
+                else -> {
+                    println("Unknown command.")
+                    readInput()
+//                    return
+                }
             }
-            "/help" -> {
-                println("The program calculates the sum of numbers")
-                readInput()
-                return
-            }
+            return
         }
 //        val ints = input.split("")
 //        for (i in ints) {
@@ -80,6 +93,10 @@ class Calculator {
 
     private fun eliminateDublicates() {
         var ch = 'd'
+        lastIndex = input.length - 1
+        if (input[lastIndex] == '+') throw NumberFormatException()
+        if (input[lastIndex] == '-') throw NumberFormatException()
+
         while (counter < input.length) {
 
             /**/
@@ -95,8 +112,9 @@ class Calculator {
                 }
                 input[counter] == '+' -> {
                     ch = '+'
-                    if (counter + 1 < input.length)
+                    if (counter + 1 < input.length) {
                         checkNext(counter + 1, '+')
+                    }
                     list.add("+")
                 }
                 input[counter] == '-' -> {
@@ -109,10 +127,13 @@ class Calculator {
                     else
                         list.add("-")
                 }
+                input[counter] == ' ' -> {}
+                else -> {
+                    throw NumberFormatException()
+                }
             }
             counter++
         }
-
         counter = 0
     }
 
@@ -161,24 +182,48 @@ class Calculator {
         var st: String = ""
         var operator = "+"
 
+//        for (i in list) {
+//            if (i.)
+//        }
+        var digit = false
+
         // TODO попробуй перый символ 0 добавить
         if (list.get(0) == "-") {
             result = 0 - list.get(1).toInt()
             counter += 2
+            digit = true
         }
         //
+        if (list.get(0) == "+") {
+            result = list.get(1).toInt()
+            counter += 2
+            digit = true
+        }
 
         while (counter < list.size) {
             st = list.get(counter)
             when {
-                st[0].isDigit() -> when (operator){
-                    "+" -> result = result + st.toInt()
-                    "-" -> result = result - st.toInt()
-                    else -> result = st.toInt()
+                st[0].isDigit() -> {
+                    if (digit) throw NumberFormatException()
+                    when (operator) {
+                        "+" -> result = result + st.toInt()
+                        "-" -> result = result - st.toInt()
+                        else -> result = st.toInt()
+                    }
+                    digit = true
                 }
-                st[0] == '+' -> operator = "+"
-                st[0] == '-' -> operator = "-"
+                st[0] == '+' -> {
+                    if (!digit) throw NumberFormatException()
+                    operator = "+"
+                    digit = false
+                }
+                st[0] == '-' -> {
+                    if (!digit) throw NumberFormatException()
+                    operator = "-"
+                    digit = false
+                }
                 else -> continue
+//                else -> throw NumberFormatException()
             }
             counter++
         }
